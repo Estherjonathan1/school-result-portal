@@ -1,0 +1,14 @@
+{
+  "name": "school-result-portal",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "test:a11y": "playwright test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.1",
+    "@playwright/test": "^1.49.0",
+    "playwright": "^1.49.0"
+  }
+}

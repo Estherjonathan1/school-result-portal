@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>School Result Portal</title>
+    <meta name="description" content="Accessible school result portal for viewing student performance summaries.">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <header class="site-header">
+      <div class="container header-inner">
+        <div>
+          <p class="eyebrow">Academic Records</p>
+          <h1>Bright Future School</h1>
+        </div>
+        <nav aria-label="Primary">
+          <ul class="nav-links">
+            <li><a href="#results">Results</a></li>
+            <li><a href="#help">Help</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="hero container" aria-labelledby="portal-heading">
+        <div>
+          <p class="eyebrow">Student Result Portal</p>
+          <h2 id="portal-heading">Find a student result quickly and clearly.</h2>
+          <p>Use the search box below to locate a student by name or admission number.</p>
+        </div>
+
+        <form id="search-form" class="search-card" role="search">
+          <label for="student-search">Search student</label>
+          <div class="search-row">
+            <input id="student-search" name="student-search" type="search" placeholder="e.g. Amina Yusuf" autocomplete="off">
+            <button type="submit">Search</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="container" id="results" aria-labelledby="results-heading">
+        <div class="summary-grid" aria-label="Portal overview">
+          <article class="summary-card">
+            <h3>Students Published</h3>
+            <p class="metric">120</p>
+          </article>
+          <article class="summary-card">
+            <h3>Pass Rate</h3>
+            <p class="metric">94%</p>
+          </article>
+          <article class="summary-card">
+            <h3>Top Performer</h3>
+            <p class="metric">Amina Yusuf</p>
+          </article>
+        </div>
+
+        <div class="table-card">
+          <div class="table-header">
+            <h2 id="results-heading">Published results</h2>
+            <p id="status-message" class="status" aria-live="polite">Showing all students.</p>
+          </div>
+
+          <table>
+            <caption>Student academic results for the current term</caption>
+            <thead>
+              <tr>
+                <th scope="col">Student</th>
+                <th scope="col">Admission No.</th>
+                <th scope="col">Class</th>
+                <th scope="col">Subjects</th>
+                <th scope="col">Average</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody id="results-body">
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer id="help" class="site-footer">
+      <div class="container">
+        <p>For support, contact the school office or the academic records team.</p>
+      </div>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
