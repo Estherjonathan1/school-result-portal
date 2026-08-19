@@ -1,0 +1,2929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Term Results Portal — EJTech Academy</title>
+<style>
+  :root{
+    --ink:#1b2a41;
+    --paper:#f7f3e9;
+    --paper-line:#d8cfb8;
+    --gold:#a9812f;
+    --pass:#2f6b4f;
+    --fail:#a3392f;
+    --muted:#6b6455;
+  }
+
+  * { box-sizing: border-box; }
+
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family: Georgia, 'Times New Roman', serif;
+    padding: 48px 20px 80px;
+  }
+
+  .sheet{
+    max-width: 1180px;
+    margin: 0 auto;
+    background: #fffdf8;
+    border: 1px solid var(--paper-line);
+    box-shadow: 0 2px 0 var(--paper-line), 0 20px 40px -20px rgba(27,42,65,0.25);
+    padding: 48px 44px 40px;
+    position: relative;
+  }
+
+  .stamp{
+    position:absolute;
+    top:34px;
+    right:40px;
+    width:86px;
+    height:86px;
+    border:2px solid var(--gold);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-family: 'Courier New', monospace;
+    font-size:10.5px;
+    letter-spacing:1px;
+    color:var(--gold);
+    text-transform:uppercase;
+    transform: rotate(-8deg);
+    line-height:1.3;
+    opacity:0.85;
+  }
+
+  header{
+    border-bottom: 3px double var(--ink);
+    padding-bottom: 18px;
+    margin-bottom: 22px;
+  }
+
+  .eyebrow{
+    font-family:'Courier New', monospace;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-size: 11px;
+    color: var(--muted);
+    margin: 0 0 6px;
+  }
+
+  h1{
+    margin: 0 0 4px;
+    font-size: 30px;
+    letter-spacing: 0.5px;
+  }
+
+  .meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap: 6px 28px;
+    font-size: 13.5px;
+    color: var(--muted);
+    margin-top: 10px;
+  }
+
+  .meta span b{ color: var(--ink); font-weight:600; }
+
+  /* Tabs */
+  .tabs{
+    display:flex;
+    gap: 8px;
+    margin: 22px 0 18px;
+    border-bottom: 1px solid var(--paper-line);
+  }
+
+  .tab-btn{
+    font-family:'Courier New', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 12.5px;
+    background: none;
+    border: 1px solid var(--paper-line);
+    border-bottom: none;
+    color: var(--muted);
+    padding: 10px 22px;
+    cursor: pointer;
+    border-radius: 4px 4px 0 0;
+    position: relative;
+    top: 1px;
+  }
+
+  .tab-btn.active{
+    color: var(--ink);
+    background: #fffdf8;
+    border-color: var(--ink);
+    font-weight: bold;
+  }
+
+  .class-panel{ display:none; }
+  .class-panel.active{ display:block; }
+
+  .legend{
+    font-family:'Courier New', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin: 0 0 14px;
+    letter-spacing: 0.3px;
+  }
+  .legend b{ color: var(--ink); }
+
+  .table-scroll{
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--paper-line);
+  }
+
+  table{
+    width:100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    min-width: 900px;
+  }
+
+  thead th{
+    text-align:center;
+    font-family:'Courier New', monospace;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    font-size:10.5px;
+    color: var(--muted);
+    border-bottom: 2px solid var(--ink);
+    padding: 10px 8px;
+    white-space: nowrap;
+    cursor: help;
+  }
+
+  thead th:first-child{ text-align:left; padding-left: 12px; }
+
+  tbody td{
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--paper-line);
+    text-align:center;
+    white-space: nowrap;
+  }
+
+  tbody td.name{ text-align:left; white-space: normal; padding-left: 12px; }
+
+  tbody tr:nth-child(even){ background: rgba(169,129,47,0.05); }
+
+  .name{ font-weight: 600; }
+  .id{ color: var(--muted); font-family:'Courier New', monospace; font-size:11.5px; font-weight:normal; }
+
+  td.avg{ font-weight:700; }
+
+  .grade{
+    display:inline-block;
+    font-family:'Courier New', monospace;
+    font-weight:700;
+    min-width: 20px;
+  }
+
+  .status{
+    font-family:'Courier New', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 3px;
+    display:inline-block;
+  }
+  .status.pass{ color: var(--pass); border:1px solid var(--pass); }
+  .status.fail{ color: var(--fail); border:1px solid var(--fail); }
+
+  footer{
+    margin-top: 30px;
+    padding-top: 18px;
+    border-top: 1px solid var(--paper-line);
+    display:flex;
+    justify-content: space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap: 16px;
+  }
+
+  .sig{
+    font-size:12px;
+    color: var(--muted);
+  }
+  .sig .line{
+    width:180px;
+    border-bottom:1px solid var(--ink);
+    margin-bottom:6px;
+    height:28px;
+  }
+
+  .note{
+    font-size: 12px;
+    color: var(--muted);
+    max-width: 340px;
+  }
+
+  @media (max-width: 640px){
+    .sheet{ padding: 32px 20px 28px; }
+    .stamp{ display:none; }
+    .tab-btn{ padding: 8px 14px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="sheet">
+    <div class="stamp">Certified<br>Result</div>
+
+    <header>
+      <p class="eyebrow">Term Results Portal</p>
+      <h1>EJTech Academy</h1>
+      <div class="meta">
+        <span><b>Term:</b> 2nd Term, 2025/2026</span>
+        <span><b>SS1–SS3 Subjects:</b> Mathematics, English, Physics, Chemistry, Biology, Computer Science, Agriculture, Geography, Civic Education</span>
+        <span><b>JSS1–JSS3 Subjects:</b> English Language, Mathematics, Agricultural Science, Physical and Health Education, Business Studies, Cultural and Creative Art, Home Economics, Basic Science, Basic Technology, Social Studies, Civic Education, French</span>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showClass('jss1', this)">JSS1</button>
+      <button class="tab-btn" onclick="showClass('jss2', this)">JSS2</button>
+      <button class="tab-btn" onclick="showClass('jss3', this)">JSS3</button>
+      <button class="tab-btn" onclick="showClass('ss1', this)">SS1</button>
+      <button class="tab-btn" onclick="showClass('ss2', this)">SS2</button>
+      <button class="tab-btn" onclick="showClass('ss3', this)">SS3</button>
+    </div>
+
+    <p class="legend"><b>SS Key:</b> MTH — Mathematics · ENG — English · PHY — Physics · CHM — Chemistry · BIO — Biology · CS — Computer Science · AGR — Agriculture · GEO — Geography · CIV — Civic Education · AVG — Average score</p>
+    <p class="legend"><b>JSS Key:</b> ENG — English Language · MTH — Mathematics · AGR — Agricultural Science · PHE — Physical and Health Education · BUS — Business Studies · CCA — Cultural and Creative Art · HEC — Home Economics · BSC — Basic Science · BTE — Basic Technology · SOS — Social Studies · CIV — Civic Education · FRE — French · AVG — Average score</p>
+
+    <!-- SS1 PANEL -->
+    <!-- JSS1 PANEL -->
+<!-- JSS1 PANEL -->
+    <div class="class-panel active" id="panel-jss1">
+      <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th class="num" title="English Language">ENG</th>
+            <th class="num" title="Mathematics">MTH</th>
+            <th class="num" title="Agricultural Science">AGR</th>
+            <th class="num" title="Physical and Health Education">PHE</th>
+            <th class="num" title="Business Studies">BUS</th>
+            <th class="num" title="Cultural and Creative Art">CCA</th>
+            <th class="num" title="Home Economics">HEC</th>
+            <th class="num" title="Basic Science">BSC</th>
+            <th class="num" title="Basic Technology">BTE</th>
+            <th class="num" title="Social Studies">SOS</th>
+            <th class="num" title="Civic Education">CIV</th>
+            <th class="num" title="French">FRE</th>
+            <th class="num" title="Average">AVG</th>
+            <th class="num" title="Grade">Grade</th>
+            <th class="num" title="Status">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td class="name">Daniel Okwuosa <div class="id">ID: JSS1-001</div></td>
+          <td class="num">87</td>
+          <td class="num">89</td>
+          <td class="num">87</td>
+          <td class="num">95</td>
+          <td class="num">54</td>
+          <td class="num">53</td>
+          <td class="num">95</td>
+          <td class="num">90</td>
+          <td class="num">53</td>
+          <td class="num">42</td>
+          <td class="num">87</td>
+          <td class="num">68</td>
+          <td class="num avg">75</td>
+          <td class="num"><span class="grade">A</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Miracle Ezenwa <div class="id">ID: JSS1-002</div></td>
+          <td class="num">48</td>
+          <td class="num">41</td>
+          <td class="num">98</td>
+          <td class="num">35</td>
+          <td class="num">80</td>
+          <td class="num">87</td>
+          <td class="num">50</td>
+          <td class="num">31</td>
+          <td class="num">97</td>
+          <td class="num">38</td>
+          <td class="num">37</td>
+          <td class="num">34</td>
+          <td class="num avg">56</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Abdulazeez Yahaya <div class="id">ID: JSS1-003</div></td>
+          <td class="num">54</td>
+          <td class="num">60</td>
+          <td class="num">33</td>
+          <td class="num">89</td>
+          <td class="num">71</td>
+          <td class="num">86</td>
+          <td class="num">55</td>
+          <td class="num">96</td>
+          <td class="num">59</td>
+          <td class="num">67</td>
+          <td class="num">93</td>
+          <td class="num">30</td>
+          <td class="num avg">66</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Chidiogo Nwankwo <div class="id">ID: JSS1-004</div></td>
+          <td class="num">40</td>
+          <td class="num">88</td>
+          <td class="num">65</td>
+          <td class="num">82</td>
+          <td class="num">40</td>
+          <td class="num">62</td>
+          <td class="num">70</td>
+          <td class="num">59</td>
+          <td class="num">95</td>
+          <td class="num">66</td>
+          <td class="num">33</td>
+          <td class="num">38</td>
+          <td class="num avg">62</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Wasiu Alao <div class="id">ID: JSS1-005</div></td>
+          <td class="num">43</td>
+          <td class="num">81</td>
+          <td class="num">43</td>
+          <td class="num">67</td>
+          <td class="num">79</td>
+          <td class="num">38</td>
+          <td class="num">32</td>
+          <td class="num">30</td>
+          <td class="num">57</td>
+          <td class="num">56</td>
+          <td class="num">36</td>
+          <td class="num">90</td>
+          <td class="num avg">54</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Peace Effanga <div class="id">ID: JSS1-006</div></td>
+          <td class="num">78</td>
+          <td class="num">80</td>
+          <td class="num">83</td>
+          <td class="num">39</td>
+          <td class="num">55</td>
+          <td class="num">64</td>
+          <td class="num">73</td>
+          <td class="num">41</td>
+          <td class="num">69</td>
+          <td class="num">72</td>
+          <td class="num">31</td>
+          <td class="num">82</td>
+          <td class="num avg">64</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Sani Abubakar <div class="id">ID: JSS1-007</div></td>
+          <td class="num">45</td>
+          <td class="num">47</td>
+          <td class="num">61</td>
+          <td class="num">42</td>
+          <td class="num">31</td>
+          <td class="num">37</td>
+          <td class="num">89</td>
+          <td class="num">92</td>
+          <td class="num">52</td>
+          <td class="num">54</td>
+          <td class="num">87</td>
+          <td class="num">95</td>
+          <td class="num avg">61</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Ogechi Mba <div class="id">ID: JSS1-008</div></td>
+          <td class="num">54</td>
+          <td class="num">46</td>
+          <td class="num">83</td>
+          <td class="num">79</td>
+          <td class="num">44</td>
+          <td class="num">80</td>
+          <td class="num">83</td>
+          <td class="num">57</td>
+          <td class="num">30</td>
+          <td class="num">64</td>
+          <td class="num">68</td>
+          <td class="num">32</td>
+          <td class="num avg">60</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Kayode Ogunbanjo <div class="id">ID: JSS1-009</div></td>
+          <td class="num">56</td>
+          <td class="num">53</td>
+          <td class="num">80</td>
+          <td class="num">42</td>
+          <td class="num">35</td>
+          <td class="num">48</td>
+          <td class="num">57</td>
+          <td class="num">86</td>
+          <td class="num">63</td>
+          <td class="num">31</td>
+          <td class="num">72</td>
+          <td class="num">67</td>
+          <td class="num avg">58</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Vivian Ubah <div class="id">ID: JSS1-010</div></td>
+          <td class="num">79</td>
+          <td class="num">39</td>
+          <td class="num">39</td>
+          <td class="num">41</td>
+          <td class="num">56</td>
+          <td class="num">61</td>
+          <td class="num">31</td>
+          <td class="num">77</td>
+          <td class="num">77</td>
+          <td class="num">88</td>
+          <td class="num">46</td>
+          <td class="num">91</td>
+          <td class="num avg">60</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Umar Farouk <div class="id">ID: JSS1-011</div></td>
+          <td class="num">47</td>
+          <td class="num">79</td>
+          <td class="num">53</td>
+          <td class="num">49</td>
+          <td class="num">69</td>
+          <td class="num">59</td>
+          <td class="num">61</td>
+          <td class="num">54</td>
+          <td class="num">50</td>
+          <td class="num">55</td>
+          <td class="num">79</td>
+          <td class="num">91</td>
+          <td class="num avg">62</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Adaugo Ejike <div class="id">ID: JSS1-012</div></td>
+          <td class="num">40</td>
+          <td class="num">83</td>
+          <td class="num">36</td>
+          <td class="num">43</td>
+          <td class="num">43</td>
+          <td class="num">34</td>
+          <td class="num">95</td>
+          <td class="num">62</td>
+          <td class="num">60</td>
+          <td class="num">80</td>
+          <td class="num">62</td>
+          <td class="num">83</td>
+          <td class="num avg">60</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Lekan Balogun <div class="id">ID: JSS1-013</div></td>
+          <td class="num">92</td>
+          <td class="num">67</td>
+          <td class="num">96</td>
+          <td class="num">52</td>
+          <td class="num">38</td>
+          <td class="num">46</td>
+          <td class="num">59</td>
+          <td class="num">91</td>
+          <td class="num">39</td>
+          <td class="num">65</td>
+          <td class="num">57</td>
+          <td class="num">56</td>
+          <td class="num avg">63</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Zulaihat Adamu <div class="id">ID: JSS1-014</div></td>
+          <td class="num">32</td>
+          <td class="num">38</td>
+          <td class="num">64</td>
+          <td class="num">82</td>
+          <td class="num">87</td>
+          <td class="num">61</td>
+          <td class="num">37</td>
+          <td class="num">35</td>
+          <td class="num">52</td>
+          <td class="num">66</td>
+          <td class="num">77</td>
+          <td class="num">97</td>
+          <td class="num avg">61</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Chimezie Onuoha <div class="id">ID: JSS1-015</div></td>
+          <td class="num">46</td>
+          <td class="num">41</td>
+          <td class="num">76</td>
+          <td class="num">47</td>
+          <td class="num">87</td>
+          <td class="num">72</td>
+          <td class="num">96</td>
+          <td class="num">47</td>
+          <td class="num">34</td>
+          <td class="num">32</td>
+          <td class="num">90</td>
+          <td class="num">75</td>
+          <td class="num avg">62</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Comfort Akpan <div class="id">ID: JSS1-016</div></td>
+          <td class="num">69</td>
+          <td class="num">34</td>
+          <td class="num">32</td>
+          <td class="num">39</td>
+          <td class="num">91</td>
+          <td class="num">38</td>
+          <td class="num">69</td>
+          <td class="num">70</td>
+          <td class="num">47</td>
+          <td class="num">39</td>
+          <td class="num">39</td>
+          <td class="num">87</td>
+          <td class="num avg">54</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Aliyu Bunza <div class="id">ID: JSS1-017</div></td>
+          <td class="num">77</td>
+          <td class="num">35</td>
+          <td class="num">46</td>
+          <td class="num">73</td>
+          <td class="num">75</td>
+          <td class="num">40</td>
+          <td class="num">90</td>
+          <td class="num">39</td>
+          <td class="num">83</td>
+          <td class="num">33</td>
+          <td class="num">93</td>
+          <td class="num">31</td>
+          <td class="num avg">60</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Ngozika Iheanacho <div class="id">ID: JSS1-018</div></td>
+          <td class="num">78</td>
+          <td class="num">78</td>
+          <td class="num">31</td>
+          <td class="num">39</td>
+          <td class="num">40</td>
+          <td class="num">41</td>
+          <td class="num">44</td>
+          <td class="num">62</td>
+          <td class="num">83</td>
+          <td class="num">72</td>
+          <td class="num">79</td>
+          <td class="num">88</td>
+          <td class="num avg">61</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Bayo Adekunle <div class="id">ID: JSS1-019</div></td>
+          <td class="num">86</td>
+          <td class="num">89</td>
+          <td class="num">40</td>
+          <td class="num">96</td>
+          <td class="num">95</td>
+          <td class="num">33</td>
+          <td class="num">69</td>
+          <td class="num">41</td>
+          <td class="num">91</td>
+          <td class="num">32</td>
+          <td class="num">59</td>
+          <td class="num">44</td>
+          <td class="num avg">65</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Rukayat Sadiq <div class="id">ID: JSS1-020</div></td>
+          <td class="num">93</td>
+          <td class="num">92</td>
+          <td class="num">62</td>
+          <td class="num">31</td>
+          <td class="num">77</td>
+          <td class="num">68</td>
+          <td class="num">48</td>
+          <td class="num">55</td>
+          <td class="num">96</td>
+          <td class="num">51</td>
+          <td class="num">73</td>
+          <td class="num">86</td>
+          <td class="num avg">69</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Ikenna Chukwu <div class="id">ID: JSS1-021</div></td>
+          <td class="num">93</td>
+          <td class="num">60</td>
+          <td class="num">71</td>
+          <td class="num">81</td>
+          <td class="num">62</td>
+          <td class="num">55</td>
+          <td class="num">85</td>
+          <td class="num">55</td>
+          <td class="num">57</td>
+          <td class="num">79</td>
+          <td class="num">58</td>
+          <td class="num">70</td>
+          <td class="num avg">69</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Titi Alabi <div class="id">ID: JSS1-022</div></td>
+          <td class="num">56</td>
+          <td class="num">47</td>
+          <td class="num">47</td>
+          <td class="num">93</td>
+          <td class="num">74</td>
+          <td class="num">35</td>
+          <td class="num">38</td>
+          <td class="num">65</td>
+          <td class="num">51</td>
+          <td class="num">44</td>
+          <td class="num">87</td>
+          <td class="num">90</td>
+          <td class="num avg">61</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Idris Shehu <div class="id">ID: JSS1-023</div></td>
+          <td class="num">65</td>
+          <td class="num">57</td>
+          <td class="num">82</td>
+          <td class="num">78</td>
+          <td class="num">96</td>
+          <td class="num">93</td>
+          <td class="num">70</td>
+          <td class="num">87</td>
+          <td class="num">71</td>
+          <td class="num">39</td>
+          <td class="num">34</td>
+          <td class="num">65</td>
+          <td class="num avg">70</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Chiamaka Ude <div class="id">ID: JSS1-024</div></td>
+          <td class="num">35</td>
+          <td class="num">65</td>
+          <td class="num">75</td>
+          <td class="num">69</td>
+          <td class="num">32</td>
+          <td class="num">47</td>
+          <td class="num">81</td>
+          <td class="num">88</td>
+          <td class="num">54</td>
+          <td class="num">33</td>
+          <td class="num">64</td>
+          <td class="num">60</td>
+          <td class="num avg">59</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Solomon Etuk <div class="id">ID: JSS1-025</div></td>
+          <td class="num">48</td>
+          <td class="num">36</td>
+          <td class="num">44</td>
+          <td class="num">87</td>
+          <td class="num">43</td>
+          <td class="num">98</td>
+          <td class="num">77</td>
+          <td class="num">39</td>
+          <td class="num">55</td>
+          <td class="num">55</td>
+          <td class="num">90</td>
+          <td class="num">62</td>
+          <td class="num avg">61</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <!-- JSS2 PANEL -->
+    <div class="class-panel" id="panel-jss2">
+      <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th class="num" title="English Language">ENG</th>
+            <th class="num" title="Mathematics">MTH</th>
+            <th class="num" title="Agricultural Science">AGR</th>
+            <th class="num" title="Physical and Health Education">PHE</th>
+            <th class="num" title="Business Studies">BUS</th>
+            <th class="num" title="Cultural and Creative Art">CCA</th>
+            <th class="num" title="Home Economics">HEC</th>
+            <th class="num" title="Basic Science">BSC</th>
+            <th class="num" title="Basic Technology">BTE</th>
+            <th class="num" title="Social Studies">SOS</th>
+            <th class="num" title="Civic Education">CIV</th>
+            <th class="num" title="French">FRE</th>
+            <th class="num" title="Average">AVG</th>
+            <th class="num" title="Grade">Grade</th>
+            <th class="num" title="Status">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td class="name">Uzoma Anadi <div class="id">ID: JSS2-001</div></td>
+          <td class="num">63</td>
+          <td class="num">67</td>
+          <td class="num">53</td>
+          <td class="num">59</td>
+          <td class="num">48</td>
+          <td class="num">58</td>
+          <td class="num">53</td>
+          <td class="num">46</td>
+          <td class="num">39</td>
+          <td class="num">98</td>
+          <td class="num">57</td>
+          <td class="num">67</td>
+          <td class="num avg">59</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Halimat Bello <div class="id">ID: JSS2-002</div></td>
+          <td class="num">33</td>
+          <td class="num">85</td>
+          <td class="num">46</td>
+          <td class="num">31</td>
+          <td class="num">65</td>
+          <td class="num">48</td>
+          <td class="num">40</td>
+          <td class="num">63</td>
+          <td class="num">87</td>
+          <td class="num">85</td>
+          <td class="num">47</td>
+          <td class="num">62</td>
+          <td class="num avg">58</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Chukwuebuka Nnadi <div class="id">ID: JSS2-003</div></td>
+          <td class="num">75</td>
+          <td class="num">59</td>
+          <td class="num">92</td>
+          <td class="num">84</td>
+          <td class="num">76</td>
+          <td class="num">85</td>
+          <td class="num">70</td>
+          <td class="num">45</td>
+          <td class="num">74</td>
+          <td class="num">63</td>
+          <td class="num">87</td>
+          <td class="num">47</td>
+          <td class="num avg">71</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Bisi Ayodele <div class="id">ID: JSS2-004</div></td>
+          <td class="num">86</td>
+          <td class="num">86</td>
+          <td class="num">98</td>
+          <td class="num">52</td>
+          <td class="num">67</td>
+          <td class="num">55</td>
+          <td class="num">52</td>
+          <td class="num">96</td>
+          <td class="num">75</td>
+          <td class="num">62</td>
+          <td class="num">77</td>
+          <td class="num">88</td>
+          <td class="num avg">74</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Nurudeen Lawal <div class="id">ID: JSS2-005</div></td>
+          <td class="num">63</td>
+          <td class="num">65</td>
+          <td class="num">80</td>
+          <td class="num">46</td>
+          <td class="num">92</td>
+          <td class="num">60</td>
+          <td class="num">60</td>
+          <td class="num">54</td>
+          <td class="num">76</td>
+          <td class="num">46</td>
+          <td class="num">39</td>
+          <td class="num">85</td>
+          <td class="num avg">64</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Chidinma Okafor <div class="id">ID: JSS2-006</div></td>
+          <td class="num">89</td>
+          <td class="num">79</td>
+          <td class="num">30</td>
+          <td class="num">84</td>
+          <td class="num">35</td>
+          <td class="num">58</td>
+          <td class="num">48</td>
+          <td class="num">93</td>
+          <td class="num">86</td>
+          <td class="num">62</td>
+          <td class="num">50</td>
+          <td class="num">82</td>
+          <td class="num avg">66</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Femi Ojo <div class="id">ID: JSS2-007</div></td>
+          <td class="num">62</td>
+          <td class="num">74</td>
+          <td class="num">55</td>
+          <td class="num">77</td>
+          <td class="num">96</td>
+          <td class="num">47</td>
+          <td class="num">60</td>
+          <td class="num">93</td>
+          <td class="num">57</td>
+          <td class="num">35</td>
+          <td class="num">34</td>
+          <td class="num">75</td>
+          <td class="num avg">64</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Adaeze Umeh <div class="id">ID: JSS2-008</div></td>
+          <td class="num">73</td>
+          <td class="num">53</td>
+          <td class="num">67</td>
+          <td class="num">54</td>
+          <td class="num">51</td>
+          <td class="num">44</td>
+          <td class="num">58</td>
+          <td class="num">51</td>
+          <td class="num">38</td>
+          <td class="num">84</td>
+          <td class="num">34</td>
+          <td class="num">86</td>
+          <td class="num avg">58</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Aminu Yusuf <div class="id">ID: JSS2-009</div></td>
+          <td class="num">73</td>
+          <td class="num">41</td>
+          <td class="num">97</td>
+          <td class="num">30</td>
+          <td class="num">46</td>
+          <td class="num">69</td>
+          <td class="num">45</td>
+          <td class="num">82</td>
+          <td class="num">68</td>
+          <td class="num">64</td>
+          <td class="num">39</td>
+          <td class="num">90</td>
+          <td class="num avg">62</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Precious Effiong <div class="id">ID: JSS2-010</div></td>
+          <td class="num">96</td>
+          <td class="num">76</td>
+          <td class="num">34</td>
+          <td class="num">30</td>
+          <td class="num">70</td>
+          <td class="num">72</td>
+          <td class="num">49</td>
+          <td class="num">93</td>
+          <td class="num">98</td>
+          <td class="num">96</td>
+          <td class="num">90</td>
+          <td class="num">58</td>
+          <td class="num avg">72</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Chukwuma Eke <div class="id">ID: JSS2-011</div></td>
+          <td class="num">56</td>
+          <td class="num">67</td>
+          <td class="num">34</td>
+          <td class="num">78</td>
+          <td class="num">94</td>
+          <td class="num">50</td>
+          <td class="num">48</td>
+          <td class="num">63</td>
+          <td class="num">84</td>
+          <td class="num">57</td>
+          <td class="num">63</td>
+          <td class="num">84</td>
+          <td class="num avg">65</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Ronke Adisa <div class="id">ID: JSS2-012</div></td>
+          <td class="num">60</td>
+          <td class="num">75</td>
+          <td class="num">61</td>
+          <td class="num">66</td>
+          <td class="num">84</td>
+          <td class="num">56</td>
+          <td class="num">74</td>
+          <td class="num">84</td>
+          <td class="num">34</td>
+          <td class="num">70</td>
+          <td class="num">80</td>
+          <td class="num">88</td>
+          <td class="num avg">69</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Sadiq Aminu <div class="id">ID: JSS2-013</div></td>
+          <td class="num">41</td>
+          <td class="num">38</td>
+          <td class="num">35</td>
+          <td class="num">30</td>
+          <td class="num">69</td>
+          <td class="num">54</td>
+          <td class="num">87</td>
+          <td class="num">91</td>
+          <td class="num">79</td>
+          <td class="num">72</td>
+          <td class="num">37</td>
+          <td class="num">67</td>
+          <td class="num avg">58</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Ijeoma Ndukwe <div class="id">ID: JSS2-014</div></td>
+          <td class="num">97</td>
+          <td class="num">85</td>
+          <td class="num">47</td>
+          <td class="num">48</td>
+          <td class="num">36</td>
+          <td class="num">44</td>
+          <td class="num">77</td>
+          <td class="num">50</td>
+          <td class="num">57</td>
+          <td class="num">69</td>
+          <td class="num">68</td>
+          <td class="num">79</td>
+          <td class="num avg">63</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Bashir Umar <div class="id">ID: JSS2-015</div></td>
+          <td class="num">67</td>
+          <td class="num">34</td>
+          <td class="num">74</td>
+          <td class="num">46</td>
+          <td class="num">42</td>
+          <td class="num">76</td>
+          <td class="num">92</td>
+          <td class="num">86</td>
+          <td class="num">85</td>
+          <td class="num">35</td>
+          <td class="num">74</td>
+          <td class="num">98</td>
+          <td class="num avg">67</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Chinelo Nweke <div class="id">ID: JSS2-016</div></td>
+          <td class="num">67</td>
+          <td class="num">46</td>
+          <td class="num">36</td>
+          <td class="num">71</td>
+          <td class="num">51</td>
+          <td class="num">46</td>
+          <td class="num">30</td>
+          <td class="num">61</td>
+          <td class="num">49</td>
+          <td class="num">41</td>
+          <td class="num">91</td>
+          <td class="num">77</td>
+          <td class="num avg">56</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Rasheed Balogun <div class="id">ID: JSS2-017</div></td>
+          <td class="num">39</td>
+          <td class="num">74</td>
+          <td class="num">63</td>
+          <td class="num">57</td>
+          <td class="num">36</td>
+          <td class="num">60</td>
+          <td class="num">60</td>
+          <td class="num">96</td>
+          <td class="num">86</td>
+          <td class="num">54</td>
+          <td class="num">80</td>
+          <td class="num">36</td>
+          <td class="num avg">62</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Grace Nnadozie <div class="id">ID: JSS2-018</div></td>
+          <td class="num">36</td>
+          <td class="num">44</td>
+          <td class="num">47</td>
+          <td class="num">98</td>
+          <td class="num">77</td>
+          <td class="num">98</td>
+          <td class="num">80</td>
+          <td class="num">68</td>
+          <td class="num">49</td>
+          <td class="num">68</td>
+          <td class="num">63</td>
+          <td class="num">41</td>
+          <td class="num avg">64</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Yakubu Isah <div class="id">ID: JSS2-019</div></td>
+          <td class="num">77</td>
+          <td class="num">36</td>
+          <td class="num">33</td>
+          <td class="num">51</td>
+          <td class="num">31</td>
+          <td class="num">43</td>
+          <td class="num">97</td>
+          <td class="num">64</td>
+          <td class="num">41</td>
+          <td class="num">72</td>
+          <td class="num">84</td>
+          <td class="num">50</td>
+          <td class="num avg">57</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Amaka Ibekwe <div class="id">ID: JSS2-020</div></td>
+          <td class="num">67</td>
+          <td class="num">35</td>
+          <td class="num">44</td>
+          <td class="num">42</td>
+          <td class="num">69</td>
+          <td class="num">81</td>
+          <td class="num">79</td>
+          <td class="num">90</td>
+          <td class="num">79</td>
+          <td class="num">64</td>
+          <td class="num">49</td>
+          <td class="num">49</td>
+          <td class="num avg">62</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Kunle Adewale <div class="id">ID: JSS2-021</div></td>
+          <td class="num">87</td>
+          <td class="num">68</td>
+          <td class="num">30</td>
+          <td class="num">97</td>
+          <td class="num">33</td>
+          <td class="num">98</td>
+          <td class="num">63</td>
+          <td class="num">65</td>
+          <td class="num">72</td>
+          <td class="num">58</td>
+          <td class="num">61</td>
+          <td class="num">77</td>
+          <td class="num avg">67</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Fatima Garba <div class="id">ID: JSS2-022</div></td>
+          <td class="num">83</td>
+          <td class="num">50</td>
+          <td class="num">91</td>
+          <td class="num">82</td>
+          <td class="num">63</td>
+          <td class="num">49</td>
+          <td class="num">89</td>
+          <td class="num">98</td>
+          <td class="num">89</td>
+          <td class="num">54</td>
+          <td class="num">78</td>
+          <td class="num">90</td>
+          <td class="num avg">76</td>
+          <td class="num"><span class="grade">A</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Obiajulu Onwuka <div class="id">ID: JSS2-023</div></td>
+          <td class="num">54</td>
+          <td class="num">33</td>
+          <td class="num">34</td>
+          <td class="num">91</td>
+          <td class="num">94</td>
+          <td class="num">52</td>
+          <td class="num">46</td>
+          <td class="num">43</td>
+          <td class="num">30</td>
+          <td class="num">47</td>
+          <td class="num">69</td>
+          <td class="num">40</td>
+          <td class="num avg">53</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Bukola Fashogbon <div class="id">ID: JSS2-024</div></td>
+          <td class="num">93</td>
+          <td class="num">96</td>
+          <td class="num">37</td>
+          <td class="num">57</td>
+          <td class="num">84</td>
+          <td class="num">33</td>
+          <td class="num">98</td>
+          <td class="num">32</td>
+          <td class="num">48</td>
+          <td class="num">68</td>
+          <td class="num">49</td>
+          <td class="num">36</td>
+          <td class="num avg">61</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Isah Danjuma <div class="id">ID: JSS2-025</div></td>
+          <td class="num">94</td>
+          <td class="num">84</td>
+          <td class="num">62</td>
+          <td class="num">58</td>
+          <td class="num">92</td>
+          <td class="num">32</td>
+          <td class="num">42</td>
+          <td class="num">61</td>
+          <td class="num">70</td>
+          <td class="num">97</td>
+          <td class="num">94</td>
+          <td class="num">31</td>
+          <td class="num avg">68</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <!-- JSS3 PANEL -->
+    <div class="class-panel" id="panel-jss3">
+      <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th class="num" title="English Language">ENG</th>
+            <th class="num" title="Mathematics">MTH</th>
+            <th class="num" title="Agricultural Science">AGR</th>
+            <th class="num" title="Physical and Health Education">PHE</th>
+            <th class="num" title="Business Studies">BUS</th>
+            <th class="num" title="Cultural and Creative Art">CCA</th>
+            <th class="num" title="Home Economics">HEC</th>
+            <th class="num" title="Basic Science">BSC</th>
+            <th class="num" title="Basic Technology">BTE</th>
+            <th class="num" title="Social Studies">SOS</th>
+            <th class="num" title="Civic Education">CIV</th>
+            <th class="num" title="French">FRE</th>
+            <th class="num" title="Average">AVG</th>
+            <th class="num" title="Grade">Grade</th>
+            <th class="num" title="Status">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td class="name">Chinedu Obasi <div class="id">ID: JSS3-001</div></td>
+          <td class="num">96</td>
+          <td class="num">83</td>
+          <td class="num">68</td>
+          <td class="num">76</td>
+          <td class="num">67</td>
+          <td class="num">52</td>
+          <td class="num">65</td>
+          <td class="num">44</td>
+          <td class="num">33</td>
+          <td class="num">61</td>
+          <td class="num">79</td>
+          <td class="num">83</td>
+          <td class="num avg">67</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Zaharau Musa <div class="id">ID: JSS3-002</div></td>
+          <td class="num">62</td>
+          <td class="num">94</td>
+          <td class="num">70</td>
+          <td class="num">81</td>
+          <td class="num">47</td>
+          <td class="num">37</td>
+          <td class="num">47</td>
+          <td class="num">55</td>
+          <td class="num">49</td>
+          <td class="num">98</td>
+          <td class="num">56</td>
+          <td class="num">72</td>
+          <td class="num avg">64</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Ifeanyi Nwadike <div class="id">ID: JSS3-003</div></td>
+          <td class="num">45</td>
+          <td class="num">38</td>
+          <td class="num">69</td>
+          <td class="num">82</td>
+          <td class="num">40</td>
+          <td class="num">94</td>
+          <td class="num">90</td>
+          <td class="num">48</td>
+          <td class="num">82</td>
+          <td class="num">94</td>
+          <td class="num">73</td>
+          <td class="num">32</td>
+          <td class="num avg">66</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Toyin Ogunyemi <div class="id">ID: JSS3-004</div></td>
+          <td class="num">85</td>
+          <td class="num">77</td>
+          <td class="num">36</td>
+          <td class="num">75</td>
+          <td class="num">36</td>
+          <td class="num">91</td>
+          <td class="num">77</td>
+          <td class="num">30</td>
+          <td class="num">81</td>
+          <td class="num">60</td>
+          <td class="num">44</td>
+          <td class="num">57</td>
+          <td class="num avg">62</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Bala Muhammad <div class="id">ID: JSS3-005</div></td>
+          <td class="num">61</td>
+          <td class="num">97</td>
+          <td class="num">76</td>
+          <td class="num">37</td>
+          <td class="num">64</td>
+          <td class="num">38</td>
+          <td class="num">65</td>
+          <td class="num">54</td>
+          <td class="num">98</td>
+          <td class="num">46</td>
+          <td class="num">62</td>
+          <td class="num">69</td>
+          <td class="num avg">64</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Chioma Anyaegbu <div class="id">ID: JSS3-006</div></td>
+          <td class="num">74</td>
+          <td class="num">70</td>
+          <td class="num">51</td>
+          <td class="num">72</td>
+          <td class="num">42</td>
+          <td class="num">64</td>
+          <td class="num">72</td>
+          <td class="num">31</td>
+          <td class="num">36</td>
+          <td class="num">74</td>
+          <td class="num">32</td>
+          <td class="num">89</td>
+          <td class="num avg">59</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Segun Owoade <div class="id">ID: JSS3-007</div></td>
+          <td class="num">64</td>
+          <td class="num">90</td>
+          <td class="num">36</td>
+          <td class="num">55</td>
+          <td class="num">69</td>
+          <td class="num">63</td>
+          <td class="num">39</td>
+          <td class="num">92</td>
+          <td class="num">32</td>
+          <td class="num">97</td>
+          <td class="num">47</td>
+          <td class="num">81</td>
+          <td class="num avg">64</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Ngozi Ejiofor <div class="id">ID: JSS3-008</div></td>
+          <td class="num">92</td>
+          <td class="num">80</td>
+          <td class="num">53</td>
+          <td class="num">55</td>
+          <td class="num">62</td>
+          <td class="num">49</td>
+          <td class="num">44</td>
+          <td class="num">57</td>
+          <td class="num">36</td>
+          <td class="num">98</td>
+          <td class="num">69</td>
+          <td class="num">70</td>
+          <td class="num avg">64</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Suleiman Adamu <div class="id">ID: JSS3-009</div></td>
+          <td class="num">70</td>
+          <td class="num">36</td>
+          <td class="num">50</td>
+          <td class="num">83</td>
+          <td class="num">41</td>
+          <td class="num">69</td>
+          <td class="num">62</td>
+          <td class="num">81</td>
+          <td class="num">91</td>
+          <td class="num">39</td>
+          <td class="num">40</td>
+          <td class="num">60</td>
+          <td class="num avg">60</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Blessing Okorie <div class="id">ID: JSS3-010</div></td>
+          <td class="num">58</td>
+          <td class="num">98</td>
+          <td class="num">63</td>
+          <td class="num">50</td>
+          <td class="num">67</td>
+          <td class="num">36</td>
+          <td class="num">92</td>
+          <td class="num">80</td>
+          <td class="num">92</td>
+          <td class="num">58</td>
+          <td class="num">82</td>
+          <td class="num">96</td>
+          <td class="num avg">73</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Emeka Onwudiwe <div class="id">ID: JSS3-011</div></td>
+          <td class="num">86</td>
+          <td class="num">39</td>
+          <td class="num">88</td>
+          <td class="num">57</td>
+          <td class="num">59</td>
+          <td class="num">91</td>
+          <td class="num">70</td>
+          <td class="num">54</td>
+          <td class="num">76</td>
+          <td class="num">33</td>
+          <td class="num">96</td>
+          <td class="num">84</td>
+          <td class="num avg">69</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Adijat Yusuf <div class="id">ID: JSS3-012</div></td>
+          <td class="num">36</td>
+          <td class="num">72</td>
+          <td class="num">51</td>
+          <td class="num">59</td>
+          <td class="num">70</td>
+          <td class="num">77</td>
+          <td class="num">52</td>
+          <td class="num">57</td>
+          <td class="num">68</td>
+          <td class="num">85</td>
+          <td class="num">75</td>
+          <td class="num">87</td>
+          <td class="num avg">66</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Chukwuka Igwe <div class="id">ID: JSS3-013</div></td>
+          <td class="num">41</td>
+          <td class="num">96</td>
+          <td class="num">43</td>
+          <td class="num">96</td>
+          <td class="num">31</td>
+          <td class="num">54</td>
+          <td class="num">52</td>
+          <td class="num">87</td>
+          <td class="num">89</td>
+          <td class="num">87</td>
+          <td class="num">94</td>
+          <td class="num">47</td>
+          <td class="num avg">68</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Folake Adisa <div class="id">ID: JSS3-014</div></td>
+          <td class="num">98</td>
+          <td class="num">90</td>
+          <td class="num">87</td>
+          <td class="num">31</td>
+          <td class="num">67</td>
+          <td class="num">63</td>
+          <td class="num">53</td>
+          <td class="num">31</td>
+          <td class="num">89</td>
+          <td class="num">73</td>
+          <td class="num">72</td>
+          <td class="num">57</td>
+          <td class="num avg">68</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Nasir Bello <div class="id">ID: JSS3-015</div></td>
+          <td class="num">36</td>
+          <td class="num">64</td>
+          <td class="num">42</td>
+          <td class="num">96</td>
+          <td class="num">31</td>
+          <td class="num">33</td>
+          <td class="num">44</td>
+          <td class="num">90</td>
+          <td class="num">68</td>
+          <td class="num">56</td>
+          <td class="num">42</td>
+          <td class="num">33</td>
+          <td class="num avg">53</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Amarachi Okwu <div class="id">ID: JSS3-016</div></td>
+          <td class="num">88</td>
+          <td class="num">98</td>
+          <td class="num">58</td>
+          <td class="num">33</td>
+          <td class="num">81</td>
+          <td class="num">45</td>
+          <td class="num">84</td>
+          <td class="num">37</td>
+          <td class="num">37</td>
+          <td class="num">54</td>
+          <td class="num">98</td>
+          <td class="num">63</td>
+          <td class="num avg">65</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Bode Salako <div class="id">ID: JSS3-017</div></td>
+          <td class="num">64</td>
+          <td class="num">75</td>
+          <td class="num">74</td>
+          <td class="num">83</td>
+          <td class="num">81</td>
+          <td class="num">30</td>
+          <td class="num">97</td>
+          <td class="num">73</td>
+          <td class="num">40</td>
+          <td class="num">34</td>
+          <td class="num">66</td>
+          <td class="num">71</td>
+          <td class="num avg">66</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Hadiza Sani <div class="id">ID: JSS3-018</div></td>
+          <td class="num">71</td>
+          <td class="num">45</td>
+          <td class="num">72</td>
+          <td class="num">46</td>
+          <td class="num">98</td>
+          <td class="num">61</td>
+          <td class="num">93</td>
+          <td class="num">66</td>
+          <td class="num">86</td>
+          <td class="num">45</td>
+          <td class="num">62</td>
+          <td class="num">61</td>
+          <td class="num avg">67</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Chibundu Nnaji <div class="id">ID: JSS3-019</div></td>
+          <td class="num">39</td>
+          <td class="num">83</td>
+          <td class="num">69</td>
+          <td class="num">55</td>
+          <td class="num">91</td>
+          <td class="num">76</td>
+          <td class="num">46</td>
+          <td class="num">57</td>
+          <td class="num">94</td>
+          <td class="num">49</td>
+          <td class="num">67</td>
+          <td class="num">40</td>
+          <td class="num avg">64</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Damilare Fasan <div class="id">ID: JSS3-020</div></td>
+          <td class="num">85</td>
+          <td class="num">86</td>
+          <td class="num">97</td>
+          <td class="num">79</td>
+          <td class="num">96</td>
+          <td class="num">49</td>
+          <td class="num">48</td>
+          <td class="num">51</td>
+          <td class="num">98</td>
+          <td class="num">70</td>
+          <td class="num">93</td>
+          <td class="num">66</td>
+          <td class="num avg">76</td>
+          <td class="num"><span class="grade">A</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Ejike Okonji <div class="id">ID: JSS3-021</div></td>
+          <td class="num">82</td>
+          <td class="num">38</td>
+          <td class="num">60</td>
+          <td class="num">51</td>
+          <td class="num">49</td>
+          <td class="num">60</td>
+          <td class="num">84</td>
+          <td class="num">71</td>
+          <td class="num">86</td>
+          <td class="num">94</td>
+          <td class="num">46</td>
+          <td class="num">66</td>
+          <td class="num avg">66</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Rashida Umar <div class="id">ID: JSS3-022</div></td>
+          <td class="num">61</td>
+          <td class="num">93</td>
+          <td class="num">62</td>
+          <td class="num">94</td>
+          <td class="num">54</td>
+          <td class="num">77</td>
+          <td class="num">30</td>
+          <td class="num">45</td>
+          <td class="num">72</td>
+          <td class="num">93</td>
+          <td class="num">39</td>
+          <td class="num">85</td>
+          <td class="num avg">67</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Nnamdi Achebe <div class="id">ID: JSS3-023</div></td>
+          <td class="num">41</td>
+          <td class="num">95</td>
+          <td class="num">78</td>
+          <td class="num">61</td>
+          <td class="num">51</td>
+          <td class="num">39</td>
+          <td class="num">67</td>
+          <td class="num">39</td>
+          <td class="num">66</td>
+          <td class="num">73</td>
+          <td class="num">89</td>
+          <td class="num">71</td>
+          <td class="num avg">64</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Yetunde Oke <div class="id">ID: JSS3-024</div></td>
+          <td class="num">49</td>
+          <td class="num">49</td>
+          <td class="num">64</td>
+          <td class="num">69</td>
+          <td class="num">79</td>
+          <td class="num">71</td>
+          <td class="num">95</td>
+          <td class="num">48</td>
+          <td class="num">85</td>
+          <td class="num">43</td>
+          <td class="num">62</td>
+          <td class="num">60</td>
+          <td class="num avg">64</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Auwal Ibrahim <div class="id">ID: JSS3-025</div></td>
+          <td class="num">57</td>
+          <td class="num">57</td>
+          <td class="num">77</td>
+          <td class="num">85</td>
+          <td class="num">78</td>
+          <td class="num">64</td>
+          <td class="num">40</td>
+          <td class="num">69</td>
+          <td class="num">81</td>
+          <td class="num">56</td>
+          <td class="num">70</td>
+          <td class="num">31</td>
+          <td class="num avg">64</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+<!-- SS1 PANEL -->
+<div class="class-panel" id="panel-ss1">
+      <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th class="num" title="Mathematics">MTH</th>
+            <th class="num" title="English">ENG</th>
+            <th class="num" title="Physics">PHY</th>
+            <th class="num" title="Chemistry">CHM</th>
+            <th class="num" title="Biology">BIO</th>
+            <th class="num" title="Computer Science">CS</th>
+            <th class="num" title="Agriculture">AGR</th>
+            <th class="num" title="Geography">GEO</th>
+            <th class="num" title="Civic Education">CIV</th>
+            <th class="num" title="Average">AVG</th>
+            <th class="num" title="Grade">Grade</th>
+            <th class="num" title="Status">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td class="name">Chiedozie Amadi <div class="id">ID: SS1-001</div></td>
+          <td class="num">71</td>
+          <td class="num">49</td>
+          <td class="num">80</td>
+          <td class="num">36</td>
+          <td class="num">39</td>
+          <td class="num">98</td>
+          <td class="num">42</td>
+          <td class="num">76</td>
+          <td class="num">37</td>
+          <td class="num avg">59</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Ruth Bassey <div class="id">ID: SS1-002</div></td>
+          <td class="num">94</td>
+          <td class="num">57</td>
+          <td class="num">34</td>
+          <td class="num">41</td>
+          <td class="num">85</td>
+          <td class="num">83</td>
+          <td class="num">38</td>
+          <td class="num">60</td>
+          <td class="num">41</td>
+          <td class="num avg">59</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Abdulrahman Bello <div class="id">ID: SS1-003</div></td>
+          <td class="num">84</td>
+          <td class="num">37</td>
+          <td class="num">45</td>
+          <td class="num">58</td>
+          <td class="num">37</td>
+          <td class="num">80</td>
+          <td class="num">36</td>
+          <td class="num">58</td>
+          <td class="num">35</td>
+          <td class="num avg">52</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Nkechi Umeh <div class="id">ID: SS1-004</div></td>
+          <td class="num">47</td>
+          <td class="num">67</td>
+          <td class="num">83</td>
+          <td class="num">48</td>
+          <td class="num">45</td>
+          <td class="num">69</td>
+          <td class="num">53</td>
+          <td class="num">43</td>
+          <td class="num">54</td>
+          <td class="num avg">57</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Femi Alabi <div class="id">ID: SS1-005</div></td>
+          <td class="num">77</td>
+          <td class="num">42</td>
+          <td class="num">38</td>
+          <td class="num">37</td>
+          <td class="num">56</td>
+          <td class="num">93</td>
+          <td class="num">98</td>
+          <td class="num">84</td>
+          <td class="num">70</td>
+          <td class="num avg">66</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Precious Nnaji <div class="id">ID: SS1-006</div></td>
+          <td class="num">89</td>
+          <td class="num">88</td>
+          <td class="num">76</td>
+          <td class="num">68</td>
+          <td class="num">61</td>
+          <td class="num">53</td>
+          <td class="num">61</td>
+          <td class="num">40</td>
+          <td class="num">68</td>
+          <td class="num avg">67</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Suleiman Garba <div class="id">ID: SS1-007</div></td>
+          <td class="num">97</td>
+          <td class="num">93</td>
+          <td class="num">73</td>
+          <td class="num">87</td>
+          <td class="num">66</td>
+          <td class="num">39</td>
+          <td class="num">45</td>
+          <td class="num">95</td>
+          <td class="num">83</td>
+          <td class="num avg">75</td>
+          <td class="num"><span class="grade">A</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Ijeoma Anyanwu <div class="id">ID: SS1-008</div></td>
+          <td class="num">51</td>
+          <td class="num">73</td>
+          <td class="num">49</td>
+          <td class="num">92</td>
+          <td class="num">83</td>
+          <td class="num">35</td>
+          <td class="num">39</td>
+          <td class="num">70</td>
+          <td class="num">73</td>
+          <td class="num avg">63</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Wale Fashola <div class="id">ID: SS1-009</div></td>
+          <td class="num">74</td>
+          <td class="num">93</td>
+          <td class="num">88</td>
+          <td class="num">38</td>
+          <td class="num">41</td>
+          <td class="num">64</td>
+          <td class="num">90</td>
+          <td class="num">38</td>
+          <td class="num">37</td>
+          <td class="num avg">63</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Rita Iwuchukwu <div class="id">ID: SS1-010</div></td>
+          <td class="num">69</td>
+          <td class="num">87</td>
+          <td class="num">66</td>
+          <td class="num">79</td>
+          <td class="num">74</td>
+          <td class="num">32</td>
+          <td class="num">89</td>
+          <td class="num">75</td>
+          <td class="num">51</td>
+          <td class="num avg">69</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Kabiru Danladi <div class="id">ID: SS1-011</div></td>
+          <td class="num">44</td>
+          <td class="num">93</td>
+          <td class="num">37</td>
+          <td class="num">57</td>
+          <td class="num">66</td>
+          <td class="num">46</td>
+          <td class="num">61</td>
+          <td class="num">80</td>
+          <td class="num">80</td>
+          <td class="num avg">63</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Ebele Okafor <div class="id">ID: SS1-012</div></td>
+          <td class="num">93</td>
+          <td class="num">40</td>
+          <td class="num">51</td>
+          <td class="num">87</td>
+          <td class="num">81</td>
+          <td class="num">65</td>
+          <td class="num">47</td>
+          <td class="num">85</td>
+          <td class="num">65</td>
+          <td class="num avg">68</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Gbenga Alade <div class="id">ID: SS1-013</div></td>
+          <td class="num">83</td>
+          <td class="num">75</td>
+          <td class="num">78</td>
+          <td class="num">59</td>
+          <td class="num">49</td>
+          <td class="num">40</td>
+          <td class="num">52</td>
+          <td class="num">49</td>
+          <td class="num">59</td>
+          <td class="num avg">60</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Maryam Aliyu <div class="id">ID: SS1-014</div></td>
+          <td class="num">59</td>
+          <td class="num">31</td>
+          <td class="num">92</td>
+          <td class="num">53</td>
+          <td class="num">63</td>
+          <td class="num">66</td>
+          <td class="num">30</td>
+          <td class="num">48</td>
+          <td class="num">83</td>
+          <td class="num avg">58</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Chukwuma Obiora <div class="id">ID: SS1-015</div></td>
+          <td class="num">98</td>
+          <td class="num">77</td>
+          <td class="num">70</td>
+          <td class="num">46</td>
+          <td class="num">95</td>
+          <td class="num">36</td>
+          <td class="num">88</td>
+          <td class="num">80</td>
+          <td class="num">80</td>
+          <td class="num avg">74</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Rejoice Etim <div class="id">ID: SS1-016</div></td>
+          <td class="num">81</td>
+          <td class="num">80</td>
+          <td class="num">43</td>
+          <td class="num">91</td>
+          <td class="num">81</td>
+          <td class="num">37</td>
+          <td class="num">54</td>
+          <td class="num">38</td>
+          <td class="num">56</td>
+          <td class="num avg">62</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Musa Bappa <div class="id">ID: SS1-017</div></td>
+          <td class="num">86</td>
+          <td class="num">50</td>
+          <td class="num">44</td>
+          <td class="num">73</td>
+          <td class="num">36</td>
+          <td class="num">43</td>
+          <td class="num">30</td>
+          <td class="num">49</td>
+          <td class="num">98</td>
+          <td class="num avg">57</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Adaobi Eneh <div class="id">ID: SS1-018</div></td>
+          <td class="num">42</td>
+          <td class="num">76</td>
+          <td class="num">33</td>
+          <td class="num">39</td>
+          <td class="num">56</td>
+          <td class="num">78</td>
+          <td class="num">49</td>
+          <td class="num">62</td>
+          <td class="num">74</td>
+          <td class="num avg">57</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Damilola Oyelaran <div class="id">ID: SS1-019</div></td>
+          <td class="num">76</td>
+          <td class="num">90</td>
+          <td class="num">45</td>
+          <td class="num">44</td>
+          <td class="num">92</td>
+          <td class="num">89</td>
+          <td class="num">91</td>
+          <td class="num">91</td>
+          <td class="num">69</td>
+          <td class="num avg">76</td>
+          <td class="num"><span class="grade">A</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Fauziya Idris <div class="id">ID: SS1-020</div></td>
+          <td class="num">40</td>
+          <td class="num">48</td>
+          <td class="num">43</td>
+          <td class="num">73</td>
+          <td class="num">63</td>
+          <td class="num">91</td>
+          <td class="num">50</td>
+          <td class="num">96</td>
+          <td class="num">32</td>
+          <td class="num avg">60</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Kosisochukwu Nwafor <div class="id">ID: SS1-021</div></td>
+          <td class="num">56</td>
+          <td class="num">97</td>
+          <td class="num">76</td>
+          <td class="num">48</td>
+          <td class="num">33</td>
+          <td class="num">97</td>
+          <td class="num">68</td>
+          <td class="num">41</td>
+          <td class="num">63</td>
+          <td class="num avg">64</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Bimbo Adeyemi <div class="id">ID: SS1-022</div></td>
+          <td class="num">96</td>
+          <td class="num">76</td>
+          <td class="num">51</td>
+          <td class="num">75</td>
+          <td class="num">58</td>
+          <td class="num">98</td>
+          <td class="num">94</td>
+          <td class="num">72</td>
+          <td class="num">58</td>
+          <td class="num avg">75</td>
+          <td class="num"><span class="grade">A</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Ahmad Tijani <div class="id">ID: SS1-023</div></td>
+          <td class="num">54</td>
+          <td class="num">60</td>
+          <td class="num">81</td>
+          <td class="num">59</td>
+          <td class="num">55</td>
+          <td class="num">96</td>
+          <td class="num">93</td>
+          <td class="num">75</td>
+          <td class="num">33</td>
+          <td class="num avg">67</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Onyinye Okonkwo <div class="id">ID: SS1-024</div></td>
+          <td class="num">33</td>
+          <td class="num">65</td>
+          <td class="num">90</td>
+          <td class="num">63</td>
+          <td class="num">54</td>
+          <td class="num">74</td>
+          <td class="num">87</td>
+          <td class="num">74</td>
+          <td class="num">76</td>
+          <td class="num avg">68</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Peter Effiong <div class="id">ID: SS1-025</div></td>
+          <td class="num">40</td>
+          <td class="num">58</td>
+          <td class="num">43</td>
+          <td class="num">59</td>
+          <td class="num">90</td>
+          <td class="num">55</td>
+          <td class="num">73</td>
+          <td class="num">56</td>
+          <td class="num">91</td>
+          <td class="num avg">63</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <!-- SS2 PANEL -->
+    <div class="class-panel" id="panel-ss2">
+      <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th class="num" title="Mathematics">MTH</th>
+            <th class="num" title="English">ENG</th>
+            <th class="num" title="Physics">PHY</th>
+            <th class="num" title="Chemistry">CHM</th>
+            <th class="num" title="Biology">BIO</th>
+            <th class="num" title="Computer Science">CS</th>
+            <th class="num" title="Agriculture">AGR</th>
+            <th class="num" title="Geography">GEO</th>
+            <th class="num" title="Civic Education">CIV</th>
+            <th class="num" title="Average">AVG</th>
+            <th class="num" title="Grade">Grade</th>
+            <th class="num" title="Status">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td class="name">Adaeze Okafor <div class="id">ID: EJT-001</div></td>
+          <td class="num">44</td>
+          <td class="num">33</td>
+          <td class="num">65</td>
+          <td class="num">61</td>
+          <td class="num">58</td>
+          <td class="num">47</td>
+          <td class="num">43</td>
+          <td class="num">41</td>
+          <td class="num">84</td>
+          <td class="num avg">53</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Chinedu Eze <div class="id">ID: EJT-002</div></td>
+          <td class="num">34</td>
+          <td class="num">33</td>
+          <td class="num">41</td>
+          <td class="num">57</td>
+          <td class="num">59</td>
+          <td class="num">94</td>
+          <td class="num">33</td>
+          <td class="num">55</td>
+          <td class="num">83</td>
+          <td class="num avg">54</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Fatima Bello <div class="id">ID: EJT-003</div></td>
+          <td class="num">58</td>
+          <td class="num">87</td>
+          <td class="num">65</td>
+          <td class="num">30</td>
+          <td class="num">50</td>
+          <td class="num">84</td>
+          <td class="num">73</td>
+          <td class="num">65</td>
+          <td class="num">49</td>
+          <td class="num avg">62</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Emeka Nwosu <div class="id">ID: EJT-004</div></td>
+          <td class="num">57</td>
+          <td class="num">73</td>
+          <td class="num">43</td>
+          <td class="num">41</td>
+          <td class="num">78</td>
+          <td class="num">42</td>
+          <td class="num">75</td>
+          <td class="num">74</td>
+          <td class="num">63</td>
+          <td class="num avg">61</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Blessing Udo <div class="id">ID: EJT-005</div></td>
+          <td class="num">35</td>
+          <td class="num">88</td>
+          <td class="num">98</td>
+          <td class="num">45</td>
+          <td class="num">78</td>
+          <td class="num">40</td>
+          <td class="num">67</td>
+          <td class="num">76</td>
+          <td class="num">54</td>
+          <td class="num avg">65</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Ifeoma Chukwu <div class="id">ID: EJT-006</div></td>
+          <td class="num">38</td>
+          <td class="num">35</td>
+          <td class="num">59</td>
+          <td class="num">67</td>
+          <td class="num">40</td>
+          <td class="num">59</td>
+          <td class="num">42</td>
+          <td class="num">78</td>
+          <td class="num">65</td>
+          <td class="num avg">54</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Tunde Adebayo <div class="id">ID: EJT-007</div></td>
+          <td class="num">88</td>
+          <td class="num">76</td>
+          <td class="num">50</td>
+          <td class="num">77</td>
+          <td class="num">75</td>
+          <td class="num">56</td>
+          <td class="num">64</td>
+          <td class="num">39</td>
+          <td class="num">51</td>
+          <td class="num avg">64</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Ngozi Okoro <div class="id">ID: EJT-008</div></td>
+          <td class="num">98</td>
+          <td class="num">61</td>
+          <td class="num">50</td>
+          <td class="num">89</td>
+          <td class="num">78</td>
+          <td class="num">64</td>
+          <td class="num">58</td>
+          <td class="num">71</td>
+          <td class="num">37</td>
+          <td class="num avg">67</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Ibrahim Musa <div class="id">ID: EJT-009</div></td>
+          <td class="num">59</td>
+          <td class="num">34</td>
+          <td class="num">70</td>
+          <td class="num">81</td>
+          <td class="num">64</td>
+          <td class="num">38</td>
+          <td class="num">57</td>
+          <td class="num">70</td>
+          <td class="num">57</td>
+          <td class="num avg">59</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Chiamaka Nnamdi <div class="id">ID: EJT-010</div></td>
+          <td class="num">93</td>
+          <td class="num">80</td>
+          <td class="num">88</td>
+          <td class="num">48</td>
+          <td class="num">63</td>
+          <td class="num">47</td>
+          <td class="num">61</td>
+          <td class="num">98</td>
+          <td class="num">63</td>
+          <td class="num avg">71</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Oluwaseun Ajayi <div class="id">ID: EJT-011</div></td>
+          <td class="num">84</td>
+          <td class="num">81</td>
+          <td class="num">76</td>
+          <td class="num">58</td>
+          <td class="num">47</td>
+          <td class="num">95</td>
+          <td class="num">93</td>
+          <td class="num">41</td>
+          <td class="num">36</td>
+          <td class="num avg">68</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Amaka Obi <div class="id">ID: EJT-012</div></td>
+          <td class="num">44</td>
+          <td class="num">49</td>
+          <td class="num">50</td>
+          <td class="num">84</td>
+          <td class="num">38</td>
+          <td class="num">79</td>
+          <td class="num">78</td>
+          <td class="num">89</td>
+          <td class="num">97</td>
+          <td class="num avg">68</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Yusuf Abdullahi <div class="id">ID: EJT-013</div></td>
+          <td class="num">62</td>
+          <td class="num">31</td>
+          <td class="num">44</td>
+          <td class="num">98</td>
+          <td class="num">64</td>
+          <td class="num">73</td>
+          <td class="num">44</td>
+          <td class="num">67</td>
+          <td class="num">85</td>
+          <td class="num avg">63</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Grace Effiong <div class="id">ID: EJT-014</div></td>
+          <td class="num">50</td>
+          <td class="num">88</td>
+          <td class="num">30</td>
+          <td class="num">63</td>
+          <td class="num">94</td>
+          <td class="num">52</td>
+          <td class="num">94</td>
+          <td class="num">43</td>
+          <td class="num">68</td>
+          <td class="num avg">65</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Kelechi Okonkwo <div class="id">ID: EJT-015</div></td>
+          <td class="num">94</td>
+          <td class="num">55</td>
+          <td class="num">49</td>
+          <td class="num">77</td>
+          <td class="num">50</td>
+          <td class="num">97</td>
+          <td class="num">30</td>
+          <td class="num">71</td>
+          <td class="num">92</td>
+          <td class="num avg">68</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Aisha Sani <div class="id">ID: EJT-016</div></td>
+          <td class="num">32</td>
+          <td class="num">44</td>
+          <td class="num">76</td>
+          <td class="num">69</td>
+          <td class="num">60</td>
+          <td class="num">37</td>
+          <td class="num">60</td>
+          <td class="num">40</td>
+          <td class="num">40</td>
+          <td class="num avg">51</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Chukwuemeka Ibe <div class="id">ID: EJT-017</div></td>
+          <td class="num">92</td>
+          <td class="num">38</td>
+          <td class="num">98</td>
+          <td class="num">46</td>
+          <td class="num">46</td>
+          <td class="num">90</td>
+          <td class="num">51</td>
+          <td class="num">63</td>
+          <td class="num">97</td>
+          <td class="num avg">69</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Folasade Ogunleye <div class="id">ID: EJT-018</div></td>
+          <td class="num">84</td>
+          <td class="num">57</td>
+          <td class="num">55</td>
+          <td class="num">69</td>
+          <td class="num">81</td>
+          <td class="num">77</td>
+          <td class="num">86</td>
+          <td class="num">96</td>
+          <td class="num">87</td>
+          <td class="num avg">77</td>
+          <td class="num"><span class="grade">A</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Obinna Eze <div class="id">ID: EJT-019</div></td>
+          <td class="num">45</td>
+          <td class="num">61</td>
+          <td class="num">58</td>
+          <td class="num">38</td>
+          <td class="num">73</td>
+          <td class="num">32</td>
+          <td class="num">59</td>
+          <td class="num">58</td>
+          <td class="num">30</td>
+          <td class="num avg">50</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Hauwa Lawal <div class="id">ID: EJT-020</div></td>
+          <td class="num">39</td>
+          <td class="num">37</td>
+          <td class="num">59</td>
+          <td class="num">38</td>
+          <td class="num">34</td>
+          <td class="num">72</td>
+          <td class="num">39</td>
+          <td class="num">95</td>
+          <td class="num">60</td>
+          <td class="num avg">53</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Chidinma Anozie <div class="id">ID: EJT-021</div></td>
+          <td class="num">65</td>
+          <td class="num">92</td>
+          <td class="num">57</td>
+          <td class="num">46</td>
+          <td class="num">90</td>
+          <td class="num">61</td>
+          <td class="num">90</td>
+          <td class="num">82</td>
+          <td class="num">54</td>
+          <td class="num avg">71</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Segun Oladipo <div class="id">ID: EJT-022</div></td>
+          <td class="num">42</td>
+          <td class="num">42</td>
+          <td class="num">85</td>
+          <td class="num">75</td>
+          <td class="num">84</td>
+          <td class="num">82</td>
+          <td class="num">89</td>
+          <td class="num">36</td>
+          <td class="num">42</td>
+          <td class="num avg">64</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Uchenna Okeke <div class="id">ID: EJT-023</div></td>
+          <td class="num">37</td>
+          <td class="num">81</td>
+          <td class="num">73</td>
+          <td class="num">43</td>
+          <td class="num">61</td>
+          <td class="num">54</td>
+          <td class="num">54</td>
+          <td class="num">98</td>
+          <td class="num">87</td>
+          <td class="num avg">65</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Zainab Yakubu <div class="id">ID: EJT-024</div></td>
+          <td class="num">47</td>
+          <td class="num">84</td>
+          <td class="num">53</td>
+          <td class="num">65</td>
+          <td class="num">89</td>
+          <td class="num">61</td>
+          <td class="num">39</td>
+          <td class="num">86</td>
+          <td class="num">42</td>
+          <td class="num avg">63</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Chukwudi Mba <div class="id">ID: EJT-025</div></td>
+          <td class="num">36</td>
+          <td class="num">31</td>
+          <td class="num">41</td>
+          <td class="num">60</td>
+          <td class="num">51</td>
+          <td class="num">82</td>
+          <td class="num">92</td>
+          <td class="num">91</td>
+          <td class="num">57</td>
+          <td class="num avg">60</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <!-- SS3 PANEL -->
+    <div class="class-panel" id="panel-ss3">
+      <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th class="num" title="Mathematics">MTH</th>
+            <th class="num" title="English">ENG</th>
+            <th class="num" title="Physics">PHY</th>
+            <th class="num" title="Chemistry">CHM</th>
+            <th class="num" title="Biology">BIO</th>
+            <th class="num" title="Computer Science">CS</th>
+            <th class="num" title="Agriculture">AGR</th>
+            <th class="num" title="Geography">GEO</th>
+            <th class="num" title="Civic Education">CIV</th>
+            <th class="num" title="Average">AVG</th>
+            <th class="num" title="Grade">Grade</th>
+            <th class="num" title="Status">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td class="name">Emmanuel Okoye <div class="id">ID: SS3-001</div></td>
+          <td class="num">51</td>
+          <td class="num">83</td>
+          <td class="num">83</td>
+          <td class="num">66</td>
+          <td class="num">91</td>
+          <td class="num">57</td>
+          <td class="num">90</td>
+          <td class="num">95</td>
+          <td class="num">53</td>
+          <td class="num avg">74</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Halima Suleiman <div class="id">ID: SS3-002</div></td>
+          <td class="num">94</td>
+          <td class="num">97</td>
+          <td class="num">60</td>
+          <td class="num">30</td>
+          <td class="num">31</td>
+          <td class="num">77</td>
+          <td class="num">84</td>
+          <td class="num">38</td>
+          <td class="num">48</td>
+          <td class="num avg">62</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Chinwe Duru <div class="id">ID: SS3-003</div></td>
+          <td class="num">59</td>
+          <td class="num">59</td>
+          <td class="num">35</td>
+          <td class="num">85</td>
+          <td class="num">82</td>
+          <td class="num">86</td>
+          <td class="num">34</td>
+          <td class="num">72</td>
+          <td class="num">93</td>
+          <td class="num avg">67</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Babatunde Fagbenle <div class="id">ID: SS3-004</div></td>
+          <td class="num">44</td>
+          <td class="num">77</td>
+          <td class="num">32</td>
+          <td class="num">49</td>
+          <td class="num">41</td>
+          <td class="num">45</td>
+          <td class="num">32</td>
+          <td class="num">88</td>
+          <td class="num">50</td>
+          <td class="num avg">51</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Rahama Aliyu <div class="id">ID: SS3-005</div></td>
+          <td class="num">73</td>
+          <td class="num">81</td>
+          <td class="num">92</td>
+          <td class="num">49</td>
+          <td class="num">53</td>
+          <td class="num">34</td>
+          <td class="num">90</td>
+          <td class="num">60</td>
+          <td class="num">39</td>
+          <td class="num avg">63</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Kingsley Nwachukwu <div class="id">ID: SS3-006</div></td>
+          <td class="num">55</td>
+          <td class="num">56</td>
+          <td class="num">39</td>
+          <td class="num">45</td>
+          <td class="num">90</td>
+          <td class="num">79</td>
+          <td class="num">55</td>
+          <td class="num">73</td>
+          <td class="num">48</td>
+          <td class="num avg">60</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Ronke Ogundele <div class="id">ID: SS3-007</div></td>
+          <td class="num">98</td>
+          <td class="num">82</td>
+          <td class="num">67</td>
+          <td class="num">76</td>
+          <td class="num">87</td>
+          <td class="num">94</td>
+          <td class="num">79</td>
+          <td class="num">70</td>
+          <td class="num">92</td>
+          <td class="num avg">83</td>
+          <td class="num"><span class="grade">A</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Abubakar Sadiq <div class="id">ID: SS3-008</div></td>
+          <td class="num">79</td>
+          <td class="num">64</td>
+          <td class="num">33</td>
+          <td class="num">41</td>
+          <td class="num">50</td>
+          <td class="num">93</td>
+          <td class="num">30</td>
+          <td class="num">92</td>
+          <td class="num">38</td>
+          <td class="num avg">58</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Faith Uduak <div class="id">ID: SS3-009</div></td>
+          <td class="num">96</td>
+          <td class="num">58</td>
+          <td class="num">70</td>
+          <td class="num">44</td>
+          <td class="num">53</td>
+          <td class="num">51</td>
+          <td class="num">74</td>
+          <td class="num">72</td>
+          <td class="num">74</td>
+          <td class="num avg">66</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Chibueze Anah <div class="id">ID: SS3-010</div></td>
+          <td class="num">69</td>
+          <td class="num">61</td>
+          <td class="num">43</td>
+          <td class="num">51</td>
+          <td class="num">38</td>
+          <td class="num">52</td>
+          <td class="num">84</td>
+          <td class="num">77</td>
+          <td class="num">50</td>
+          <td class="num avg">58</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Simisola Adegoke <div class="id">ID: SS3-011</div></td>
+          <td class="num">34</td>
+          <td class="num">96</td>
+          <td class="num">60</td>
+          <td class="num">82</td>
+          <td class="num">50</td>
+          <td class="num">31</td>
+          <td class="num">74</td>
+          <td class="num">92</td>
+          <td class="num">94</td>
+          <td class="num avg">68</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Nasiru Bala <div class="id">ID: SS3-012</div></td>
+          <td class="num">78</td>
+          <td class="num">61</td>
+          <td class="num">61</td>
+          <td class="num">50</td>
+          <td class="num">38</td>
+          <td class="num">86</td>
+          <td class="num">82</td>
+          <td class="num">91</td>
+          <td class="num">37</td>
+          <td class="num avg">65</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Ebuka Umeadi <div class="id">ID: SS3-013</div></td>
+          <td class="num">66</td>
+          <td class="num">36</td>
+          <td class="num">63</td>
+          <td class="num">67</td>
+          <td class="num">34</td>
+          <td class="num">83</td>
+          <td class="num">61</td>
+          <td class="num">51</td>
+          <td class="num">80</td>
+          <td class="num avg">60</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Titilayo Bankole <div class="id">ID: SS3-014</div></td>
+          <td class="num">38</td>
+          <td class="num">73</td>
+          <td class="num">48</td>
+          <td class="num">49</td>
+          <td class="num">91</td>
+          <td class="num">36</td>
+          <td class="num">62</td>
+          <td class="num">47</td>
+          <td class="num">97</td>
+          <td class="num avg">60</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Yakubu Danjuma <div class="id">ID: SS3-015</div></td>
+          <td class="num">91</td>
+          <td class="num">33</td>
+          <td class="num">57</td>
+          <td class="num">76</td>
+          <td class="num">49</td>
+          <td class="num">77</td>
+          <td class="num">84</td>
+          <td class="num">92</td>
+          <td class="num">91</td>
+          <td class="num avg">72</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Nkiruka Ofor <div class="id">ID: SS3-016</div></td>
+          <td class="num">69</td>
+          <td class="num">47</td>
+          <td class="num">98</td>
+          <td class="num">65</td>
+          <td class="num">47</td>
+          <td class="num">31</td>
+          <td class="num">78</td>
+          <td class="num">46</td>
+          <td class="num">33</td>
+          <td class="num avg">57</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Adewale Sanni <div class="id">ID: SS3-017</div></td>
+          <td class="num">63</td>
+          <td class="num">71</td>
+          <td class="num">61</td>
+          <td class="num">83</td>
+          <td class="num">62</td>
+          <td class="num">81</td>
+          <td class="num">47</td>
+          <td class="num">47</td>
+          <td class="num">48</td>
+          <td class="num avg">63</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Perpetual Ekong <div class="id">ID: SS3-018</div></td>
+          <td class="num">42</td>
+          <td class="num">80</td>
+          <td class="num">42</td>
+          <td class="num">53</td>
+          <td class="num">33</td>
+          <td class="num">87</td>
+          <td class="num">48</td>
+          <td class="num">39</td>
+          <td class="num">45</td>
+          <td class="num avg">52</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Sadiq Umar <div class="id">ID: SS3-019</div></td>
+          <td class="num">66</td>
+          <td class="num">46</td>
+          <td class="num">68</td>
+          <td class="num">98</td>
+          <td class="num">71</td>
+          <td class="num">80</td>
+          <td class="num">93</td>
+          <td class="num">58</td>
+          <td class="num">51</td>
+          <td class="num avg">70</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Chiamaka Ilo <div class="id">ID: SS3-020</div></td>
+          <td class="num">53</td>
+          <td class="num">53</td>
+          <td class="num">78</td>
+          <td class="num">55</td>
+          <td class="num">35</td>
+          <td class="num">94</td>
+          <td class="num">37</td>
+          <td class="num">31</td>
+          <td class="num">79</td>
+          <td class="num avg">57</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Bolaji Owolabi <div class="id">ID: SS3-021</div></td>
+          <td class="num">89</td>
+          <td class="num">38</td>
+          <td class="num">80</td>
+          <td class="num">52</td>
+          <td class="num">59</td>
+          <td class="num">62</td>
+          <td class="num">70</td>
+          <td class="num">35</td>
+          <td class="num">61</td>
+          <td class="num avg">61</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Amina Garba <div class="id">ID: SS3-022</div></td>
+          <td class="num">79</td>
+          <td class="num">49</td>
+          <td class="num">69</td>
+          <td class="num">67</td>
+          <td class="num">94</td>
+          <td class="num">92</td>
+          <td class="num">42</td>
+          <td class="num">37</td>
+          <td class="num">95</td>
+          <td class="num avg">69</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Ebere Nnabuife <div class="id">ID: SS3-023</div></td>
+          <td class="num">71</td>
+          <td class="num">96</td>
+          <td class="num">69</td>
+          <td class="num">67</td>
+          <td class="num">97</td>
+          <td class="num">54</td>
+          <td class="num">38</td>
+          <td class="num">71</td>
+          <td class="num">55</td>
+          <td class="num avg">69</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Taiwo Akande <div class="id">ID: SS3-024</div></td>
+          <td class="num">75</td>
+          <td class="num">38</td>
+          <td class="num">70</td>
+          <td class="num">83</td>
+          <td class="num">43</td>
+          <td class="num">39</td>
+          <td class="num">39</td>
+          <td class="num">87</td>
+          <td class="num">94</td>
+          <td class="num avg">63</td>
+          <td class="num"><span class="grade">C</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        <tr>
+          <td class="name">Godwin Okpara <div class="id">ID: SS3-025</div></td>
+          <td class="num">32</td>
+          <td class="num">86</td>
+          <td class="num">90</td>
+          <td class="num">96</td>
+          <td class="num">95</td>
+          <td class="num">79</td>
+          <td class="num">81</td>
+          <td class="num">39</td>
+          <td class="num">58</td>
+          <td class="num avg">73</td>
+          <td class="num"><span class="grade">B</span></td>
+          <td class="num status-cell"><span class="status pass">Pass</span></td>
+        </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+        <footer>
+      <div class="sig">
+        <div class="line"></div>
+        Class Teacher's Signature
+      </div>
+      <div class="note">
+        Average is computed across Mathematics, English, Physics, Chemistry, Biology, Computer Science, Agriculture, Geography, and Civic Education. Contact the school office for subject-specific remarks.
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    function showClass(cls, btn) {
+      document.querySelectorAll('.class-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('panel-' + cls).classList.add('active');
+      btn.classList.add('active');
+    }
+  </script>
+
+</body>
+</html>
