@@ -26,3 +26,4 @@ Run the accessibility test:
 npm run test:a11y
 ```
 # school-result-portal
+# school-result-portal
